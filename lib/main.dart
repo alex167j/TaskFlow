@@ -13,7 +13,8 @@ class TaskFlowApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TaskFlow',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        // Paleta propia de TaskFlow (verde azulado).
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF256D85)),
         useMaterial3: true,
       ),
       home: const WelcomeScreen(),
@@ -26,9 +27,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(sección 6 del codelab 01): cambia estos valores por los tuyos
-    // y prueba el hot reload guando guardes el archivo.
-    const studentName = 'Escribe tu nombre';
+    const studentName = 'Alex GC';
     const pendingTasks = 3;
     const courseName = 'Desarrollo de aplicaciones móviles';
 
