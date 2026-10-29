@@ -22,14 +22,39 @@ class TaskFlowApp extends StatelessWidget {
   }
 }
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  static const studentName = 'Alex GC';
+  static const courseName = 'Desarrollo de aplicaciones móviles';
+
+  int pendingTasks = 3;
+  int completedTasks = 0;
+  int totalTasks = 3;
+
+  void _addTask() {
+    setState(() {
+      pendingTasks++;
+      totalTasks++;
+    });
+  }
+
+  void _completeTask() {
+    setState(() {
+      pendingTasks--;
+      completedTasks++;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const studentName = 'Alex GC';
-    const pendingTasks = 3;
-    const courseName = 'Desarrollo de aplicaciones móviles';
+    final colorScheme = Theme.of(context).colorScheme;
+    final canComplete = pendingTasks > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,20 +72,64 @@ class WelcomeScreen extends StatelessWidget {
               '¡Hola, $studentName!',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text('Bienvenido/a a $courseName.'),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    const Icon(Icons.pending_actions),
+                    Icon(Icons.pending_actions, color: colorScheme.primary),
                     const SizedBox(width: 12),
                     Text('Tareas pendientes: $pendingTasks'),
                   ],
                 ),
               ),
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(Icons.task_alt, color: colorScheme.secondary),
+                    const SizedBox(width: 12),
+                    Text('Tareas completadas: $completedTasks'),
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(Icons.list_alt, color: colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Text('Tareas totales: $totalTasks'),
+                  ],
+                ),
+              ),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _addTask,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Agregar tarea'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: canComplete ? _completeTask : null,
+                    icon: const Icon(Icons.done),
+                    label: const Text('Completar tarea'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
