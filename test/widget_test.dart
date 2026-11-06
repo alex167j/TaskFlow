@@ -15,7 +15,7 @@ void main() {
     expect(find.byType(TaskCard), findsWidgets);
   });
 
-  testWidgets('Al tocar una tarjeta se abre el detalle de la tarea', (
+  testWidgets('Al tocar una tarjeta se abre la ruta de detalle', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
@@ -32,20 +32,40 @@ void main() {
     );
   });
 
-  testWidgets('La flecha de regreso vuelve al listado de tareas', (
+  testWidgets('El detalle se abre por id de la tarea tocada', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
 
-    await tester.tap(find.text('Entregar informe del taller'));
+    // Abre una tarea distinta (id 2) para comprobar el parámetro de ruta.
+    await tester.tap(find.text('Repasar layouts de Flutter'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Detalle de tarea'), findsOneWidget);
+    expect(
+      find.text(
+        'Estudiar Row, Column, Expanded y ListView antes de la sesión práctica con el docente.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Al regresar el listado se conserva completo', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const TaskFlowApp());
+
+    await tester.tap(find.text('Repasar layouts de Flutter'));
     await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
 
     expect(find.text('TaskFlow'), findsOneWidget);
     expect(
-      find.text('Redactar el informe del taller de Flutter con los avances de la Semana 1 y entregarlo en el aula virtual.'),
-      findsOneWidget, // la tarjeta del listado sigue visible: no se pierde nada
+      find.text(
+        'Estudiar Row, Column, Expanded y ListView antes de la sesión práctica con el docente.',
+      ),
+      findsOneWidget, // la tarjeta sigue en el listado: no se perdió nada
     );
   });
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/task.dart';
 import '../widgets/task_card.dart';
-import 'task_detail_screen.dart';
 
 const studentName = 'Alex GC';
 
@@ -84,22 +84,13 @@ class TasksScreen extends StatelessWidget {
                 final task = tasks[index];
                 return TaskCard(
                   task: task,
-                  onTap: () => _openTaskDetail(context, task),
+                  // Solo comunica la intención: abrir tarea <id>.
+                  onTap: () => context.push('/task/${task.id}'),
                 );
               },
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  /// Navegación provisional (aquella que se reemplaza por go_router en la
-  /// sesión 4): solo comunica la intención "abrir esta tarea".
-  void _openTaskDetail(BuildContext context, Task task) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TaskDetailScreen(task: task),
       ),
     );
   }
