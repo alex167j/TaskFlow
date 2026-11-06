@@ -1,56 +1,51 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/main.dart';
+import 'package:taskflow/widgets/task_card.dart';
 
 void main() {
-  testWidgets('La pantalla de bienvenida muestra el saludo y las tareas pendientes', (
+  testWidgets('El listado muestra el saludo y las tareas pendientes', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
 
     expect(find.text('TaskFlow'), findsOneWidget);
-    expect(find.textContaining('Tareas pendientes'), findsOneWidget);
-    expect(find.textContaining('¡Hola,'), findsOneWidget);
-    expect(find.text('Tareas pendientes: 3'), findsOneWidget);
+    expect(find.text('¡Hola, Alex GC!'), findsOneWidget);
+    expect(find.textContaining('tareas pendientes'), findsOneWidget);
+    expect(find.text('Entregar informe del taller'), findsOneWidget);
+    expect(find.byType(TaskCard), findsWidgets);
   });
 
-  testWidgets('Agregar tarea incrementa el contador de tareas', (
+  testWidgets('Al tocar una tarjeta se abre el detalle de la tarea', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
 
-    await tester.tap(find.text('Agregar tarea'));
-    await tester.pump();
+    await tester.tap(find.text('Entregar informe del taller'));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Tareas pendientes: 4'), findsOneWidget);
+    expect(find.text('Detalle de tarea'), findsOneWidget);
+    expect(
+      find.text(
+        'Redactar el informe del taller de Flutter con los avances de la Semana 1 y entregarlo en el aula virtual.',
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('Completar tarea disminuye pendientes y aumenta completadas', (
+  testWidgets('La flecha de regreso vuelve al listado de tareas', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
 
-    await tester.tap(find.text('Completar tarea'));
-    await tester.pump();
+    await tester.tap(find.text('Entregar informe del taller'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
 
-    expect(find.text('Tareas pendientes: 2'), findsOneWidget);
-    expect(find.text('Tareas completadas: 1'), findsOneWidget);
-  });
-
-  testWidgets('No se pueden completar tareas cuando no hay pendientes', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const TaskFlowApp());
-
-    for (var i = 0; i < 3; i++) {
-      await tester.tap(find.text('Completar tarea'));
-      await tester.pump();
-    }
-    expect(find.text('Tareas pendientes: 0'), findsOneWidget);
-
-    // Con el botón deshabilitado, un toque extra no cambia el estado.
-    await tester.tap(find.text('Completar tarea'), warnIfMissed: false);
-    await tester.pump();
-
-    expect(find.text('Tareas completadas: 3'), findsOneWidget);
+    expect(find.text('TaskFlow'), findsOneWidget);
+    expect(
+      find.text('Redactar el informe del taller de Flutter con los avances de la Semana 1 y entregarlo en el aula virtual.'),
+      findsOneWidget, // la tarjeta del listado sigue visible: no se pierde nada
+    );
   });
 }
