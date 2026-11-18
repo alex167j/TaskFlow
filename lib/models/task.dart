@@ -1,10 +1,12 @@
 /// Información del dominio que representa una tarea de la app.
-/// En la Semana 2 alimenta el listado estático; en la Semana 4 se
-/// mapeará desde el JSON de la API.
+/// En la Semana 2 alimenta el listado estático; más adelante se
+/// mapeará desde el JSON de la API (sesión 7).
 enum TaskPriority { high, medium, low }
 
 enum TaskStatus { pending, completed }
 
+/// Modelo principal de TaskFlow: representa una tarea del dominio,
+/// no un elemento de interfaz.
 class Task {
   const Task({
     required this.id,
@@ -12,6 +14,7 @@ class Task {
     required this.description,
     required this.priority,
     required this.status,
+    required this.userId,
   });
 
   final int id;
@@ -19,6 +22,7 @@ class Task {
   final String description;
   final TaskPriority priority;
   final TaskStatus status;
+  final int userId;
 
   String get priorityName => switch (priority) {
         TaskPriority.high => 'Alta',

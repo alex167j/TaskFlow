@@ -18,6 +18,7 @@ class TasksScreen extends StatelessWidget {
       description: 'Redactar el informe del taller de Flutter con los avances de la Semana 1 y entregarlo en el aula virtual.',
       priority: TaskPriority.high,
       status: TaskStatus.pending,
+      userId: 1,
     ),
     Task(
       id: 2,
@@ -25,6 +26,7 @@ class TasksScreen extends StatelessWidget {
       description: 'Estudiar Row, Column, Expanded y ListView antes de la sesión práctica con el docente.',
       priority: TaskPriority.medium,
       status: TaskStatus.pending,
+      userId: 1,
     ),
     Task(
       id: 3,
@@ -32,6 +34,7 @@ class TasksScreen extends StatelessWidget {
       description: 'Investigar cómo quedaría el ciclo crear, editar y eliminar de una API de tareas de práctica.',
       priority: TaskPriority.high,
       status: TaskStatus.pending,
+      userId: 1,
     ),
     Task(
       id: 4,
@@ -39,6 +42,7 @@ class TasksScreen extends StatelessWidget {
       description: 'Repasar el vocabulario del nivel intermedio con 10 palabras nuevas por día.',
       priority: TaskPriority.low,
       status: TaskStatus.completed,
+      userId: 1,
     ),
     Task(
       id: 5,
@@ -46,6 +50,7 @@ class TasksScreen extends StatelessWidget {
       description: 'Completar los ejercicios del módulo 3 y enviar el audio de pronunciación antes del viernes.',
       priority: TaskPriority.medium,
       status: TaskStatus.completed,
+      userId: 1,
     ),
   ];
 
