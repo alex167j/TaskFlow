@@ -1,6 +1,6 @@
 /// Información del dominio que representa una tarea de la app.
-/// En la Semana 2 alimenta el listado estático; más adelante se
-/// mapeará desde el JSON de la API (sesión 7).
+/// Vive en la capa de datos de la funcionalidad tasks; más adelante
+/// también se mapeará desde el JSON de la API (Semana 4).
 enum TaskPriority { high, medium, low }
 
 enum TaskStatus { pending, completed }

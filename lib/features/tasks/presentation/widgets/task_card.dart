@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/task.dart';
+import '../../data/task.dart';
 
 /// Tarjeta reutilizable que representa una tarea en el listado.
 /// Cada instancia muestra: título, descripción corta, prioridad,

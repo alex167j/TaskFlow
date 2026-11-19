@@ -211,17 +211,25 @@ API Service (HTTP, JSON, encabezados)
 
 ```text
 lib/
-├── main.dart                     # App, tema y router (go_router)
-├── models/
-│   └── task.dart                 # Modelo Task, prioridad y estado
-├── screens/
-│   ├── tasks_screen.dart         # Listado (datos estáticos por ahora)
-│   └── task_detail_screen.dart   # Detalle por id de ruta
-└── widgets/
-    └── task_card.dart            # Tarjeta reutilizable del listado
+├── main.dart                          # Punto de entrada
+├── app/
+│   └── app.dart                       # TaskFlowApp, providers y router
+├── core/
+│   └── theme/app_theme.dart           # Recursos visuales comunes
+└── features/
+    └── tasks/
+        ├── data/
+        │   ├── task.dart              # Modelo del dominio
+        │   └── task_repository.dart   # Contrato + implementación local
+        └── presentation/
+            ├── tasks_screen.dart      # Listado
+            ├── task_detail_screen.dart# Detalle por id
+            ├── tasks_view_model.dart  # Estado de la funcionalidad
+            └── widgets/
+                └── task_card.dart     # Tarjeta reutilizable
 
 test/
-└── widget_test.dart              # Pruebas de listado, detalle y regreso
+└── widget_test.dart                   # Pruebas de listado, detalle y regreso
 ```
 
 ## 10. Avance por sesiones
@@ -231,7 +239,7 @@ test/
 | 1 | 1–2 | ✅ Bienvenida con estado y paleta propia |
 | 2 | 3–4 | ✅ Listado estático con `TaskCard` y navegación `go_router` |
 | 3 | 5 | ✅ Especificación, modelo con usuario y README |
-| 3 | 6 | ⏳ Arquitectura MVVM y estructura por funcionalidades |
+| 3 | 6 | ✅ MVVM con `provider`: ViewModel, Repository y estructura por funcionalidades |
 | 4–7 | 7–14 | ⏳ API REST, CRUD, pruebas, persistencia y entrega |
 
 ## 11. Cómo ejecutar

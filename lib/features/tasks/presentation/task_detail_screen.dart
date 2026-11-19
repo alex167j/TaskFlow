@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/task.dart';
-
-import 'tasks_screen.dart';
+import '../data/task.dart';
+import 'tasks_view_model.dart';
 
 /// Detalle de una tarea, identificado únicamente por su id.
-/// La ruta es /task/:id y la búsqueda se resuelve en el listado local
-/// mientras la app no consume la API (Semana 4).
+/// La información proviene del TasksViewModel (que a su vez la obtiene
+/// del Repository), nunca de la pantalla de listado.
 class TaskDetailScreen extends StatelessWidget {
   const TaskDetailScreen({required this.taskId, super.key});
 
   final int taskId;
 
-  Task? get _task {
-    final matches =
-        TasksScreen.tasks.where((task) => task.id == taskId).toList();
-    return matches.isEmpty ? null : matches.first;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final task = _task;
+    final task = context.watch<TasksViewModel>().taskById(taskId);
 
     if (task == null) {
       return Scaffold(

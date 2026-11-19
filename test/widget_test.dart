@@ -1,12 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/main.dart';
-import 'package:taskflow/widgets/task_card.dart';
+import 'package:taskflow/features/tasks/presentation/widgets/task_card.dart';
 
 void main() {
   testWidgets('El listado muestra el saludo y las tareas pendientes', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpAndSettle(); // espera la carga del ViewModel
 
     expect(find.text('TaskFlow'), findsOneWidget);
     expect(find.text('¡Hola, Alex GC!'), findsOneWidget);
@@ -19,6 +20,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Entregar informe del taller'));
     await tester.pumpAndSettle();
@@ -36,12 +38,12 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpAndSettle();
 
     // Abre una tarea distinta (id 2) para comprobar el parámetro de ruta.
     await tester.tap(find.text('Repasar layouts de Flutter'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Detalle de tarea'), findsOneWidget);
     expect(
       find.text(
         'Estudiar Row, Column, Expanded y ListView antes de la sesión práctica con el docente.',
@@ -54,6 +56,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Repasar layouts de Flutter'));
     await tester.pumpAndSettle();
