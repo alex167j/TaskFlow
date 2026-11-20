@@ -35,6 +35,20 @@ class TasksScreen extends StatelessWidget {
                   'Tienes ${viewModel.pendingCount} tareas pendientes.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+                // Evidencia temporal de la sesión 7: código HTTP recibido.
+                if (viewModel.lastStatusCode != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.cloud_done, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Respuesta HTTP: ${viewModel.lastStatusCode}',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -64,10 +78,7 @@ class TaskListView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                viewModel.errorMessage!,
-                textAlign: TextAlign.center,
-              ),
+              Text(viewModel.errorMessage!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
               FilledButton(
                 onPressed: viewModel.loadTasks,

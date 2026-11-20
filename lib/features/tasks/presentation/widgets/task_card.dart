@@ -36,16 +36,16 @@ class TaskCard extends StatelessWidget {
                       task.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
+                      style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(999),
@@ -98,9 +98,7 @@ class TaskCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     'Prioridad: ${task.priorityName}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
+                    style: Theme.of(context).textTheme.labelMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),

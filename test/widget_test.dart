@@ -1,12 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/main.dart';
+import 'package:taskflow/features/tasks/data/task_repository.dart';
 import 'package:taskflow/features/tasks/presentation/widgets/task_card.dart';
 
 void main() {
   testWidgets('El listado muestra el saludo y las tareas pendientes', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpWidget(
+      const TaskFlowApp(repository: LocalTaskRepository()),
+    );
     await tester.pumpAndSettle(); // espera la carga del ViewModel
 
     expect(find.text('TaskFlow'), findsOneWidget);
@@ -19,7 +22,9 @@ void main() {
   testWidgets('Al tocar una tarjeta se abre la ruta de detalle', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpWidget(
+      const TaskFlowApp(repository: LocalTaskRepository()),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Entregar informe del taller'));
@@ -37,7 +42,9 @@ void main() {
   testWidgets('El detalle se abre por id de la tarea tocada', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpWidget(
+      const TaskFlowApp(repository: LocalTaskRepository()),
+    );
     await tester.pumpAndSettle();
 
     // Abre una tarea distinta (id 2) para comprobar el parámetro de ruta.
@@ -55,7 +62,9 @@ void main() {
   testWidgets('Al regresar el listado se conserva completo', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpWidget(
+      const TaskFlowApp(repository: LocalTaskRepository()),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Repasar layouts de Flutter'));

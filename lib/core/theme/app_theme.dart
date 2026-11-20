@@ -6,7 +6,7 @@ abstract final class AppTheme {
   static const Color seedColor = Color(0xFF256D85);
 
   static ThemeData get light => ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
-        useMaterial3: true,
-      );
+    colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
+    useMaterial3: true,
+  );
 }

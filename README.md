@@ -188,6 +188,20 @@ el servicio de API (`TaskApiService`).
 Códigos de error contemplados: `400` datos inválidos, `404` recurso no
 encontrado, `500` error del servidor y errores de red/timeout.
 
+### API de práctica (Semana 4)
+
+Mientras no exista una API propia, TaskFlow consume **JSONPlaceholder**:
+
+- URL base: `https://jsonplaceholder.typicode.com`
+- Consulta: `GET /todos?userId=1` (tareas del usuario de prueba)
+- Conversión en `Task.fromJson()`: `completed` → `status` (`pending` /
+  `completed`), `title` → `title`; `priority` y `description` usan valores por
+  defecto porque esa API no los envía. También acepta el formato completo de la
+  especificación (con `priority`, `status` y `description`).
+- Comprobación de la sesión 7: la app muestra temporalmente
+  **«Respuesta HTTP: 200»** bajo el saludo, evidencia de que la consulta se
+  realizó correctamente.
+
 ## 8. Arquitectura prevista
 
 ```text
@@ -219,8 +233,9 @@ lib/
 └── features/
     └── tasks/
         ├── data/
-        │   ├── task.dart              # Modelo del dominio
-        │   └── task_repository.dart   # Contrato + implementación local
+        │   ├── task.dart              # Modelo del dominio + fromJson()
+        │   ├── task_api_service.dart  # dio: URL base, GET y lectura de JSON
+        │   └── task_repository.dart   # Contrato + repositorios API/local
         └── presentation/
             ├── tasks_screen.dart      # Listado
             ├── task_detail_screen.dart# Detalle por id
@@ -240,7 +255,8 @@ test/
 | 2 | 3–4 | ✅ Listado estático con `TaskCard` y navegación `go_router` |
 | 3 | 5 | ✅ Especificación, modelo con usuario y README |
 | 3 | 6 | ✅ MVVM con `provider`: ViewModel, Repository y estructura por funcionalidades |
-| 4–7 | 7–14 | ⏳ API REST, CRUD, pruebas, persistencia y entrega |
+| 4 | 7 | ✅ `TaskApiService` con `dio`, `fromJson()` y tareas remotas |
+| 4–7 | 8–14 | ⏳ Estados asíncronos, CRUD, pruebas, persistencia y entrega |
 
 ## 11. Cómo ejecutar
 

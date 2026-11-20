@@ -29,8 +29,9 @@ class TaskDetailScreen extends StatelessWidget {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final statusColor =
-        task.isCompleted ? const Color(0xFF2E7D32) : colorScheme.primary;
+    final statusColor = task.isCompleted
+        ? const Color(0xFF2E7D32)
+        : colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle de tarea'), centerTitle: true),
@@ -48,14 +49,11 @@ class TaskDetailScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(task.isCompleted ? 'Completada' : 'Pendiente'),
               const Spacer(),
-              Icon(
-                switch (task.priority) {
-                  TaskPriority.high => Icons.local_fire_department,
-                  TaskPriority.medium => Icons.remove_circle_outline,
-                  TaskPriority.low => Icons.arrow_downward,
-                },
-                color: colorScheme.primary,
-              ),
+              Icon(switch (task.priority) {
+                TaskPriority.high => Icons.local_fire_department,
+                TaskPriority.medium => Icons.remove_circle_outline,
+                TaskPriority.low => Icons.arrow_downward,
+              }, color: colorScheme.primary),
               const SizedBox(width: 8),
               Text('Prioridad: ${task.priorityName}'),
             ],

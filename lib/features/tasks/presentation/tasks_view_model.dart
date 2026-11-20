@@ -13,12 +13,17 @@ class TasksViewModel extends ChangeNotifier {
   bool _isLoading = false;
   List<Task> _tasks = const [];
   String? _errorMessage;
+  int? _lastStatusCode;
 
   bool get isLoading => _isLoading;
 
   List<Task> get tasks => List.unmodifiable(_tasks);
 
   String? get errorMessage => _errorMessage;
+
+  /// Código HTTP de la última consulta. Se muestra de forma temporal en
+  /// la sesión 7 para comprobar la respuesta del servidor.
+  int? get lastStatusCode => _lastStatusCode;
 
   int get pendingCount => _tasks.where((task) => !task.isCompleted).length;
 
@@ -35,10 +40,11 @@ class TasksViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _tasks = await _repository.getTasks();
+      final result = await _repository.getTasks();
+      _tasks = result.tasks;
+      _lastStatusCode = result.statusCode;
     } catch (_) {
-      _errorMessage =
-          'No se pudieron cargar las tareas. Intenta de nuevo.';
+      _errorMessage = 'No se pudieron cargar las tareas. Intenta de nuevo.';
     } finally {
       _isLoading = false;
       notifyListeners();

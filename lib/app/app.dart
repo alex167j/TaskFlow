@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme/app_theme.dart';
+import '../features/tasks/data/task_api_service.dart';
 import '../features/tasks/data/task_repository.dart';
 import '../features/tasks/presentation/task_detail_screen.dart';
 import '../features/tasks/presentation/tasks_screen.dart';
@@ -16,10 +17,7 @@ import '../features/tasks/presentation/tasks_view_model.dart';
 GoRouter crearRouterDeApp() {
   return GoRouter(
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const TasksScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const TasksScreen()),
       GoRoute(
         path: '/task/:id',
         builder: (context, state) {
@@ -34,19 +32,22 @@ GoRouter crearRouterDeApp() {
 /// Raíz de la aplicación: entrega Repository y ViewModel sin crear
 /// dependencias globales, y configura el tema y las rutas.
 class TaskFlowApp extends StatelessWidget {
-  const TaskFlowApp({super.key});
+  const TaskFlowApp({super.key, this.repository});
+
+  /// Permite inyectar otra fuente de datos (por ejemplo, la local en
+  /// pruebas). En ejecución normal se usa la API REST.
+  final TaskRepository? repository;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<TaskRepository>(
-          create: (_) => LocalTaskRepository(),
+          create: (_) => repository ?? TaskApiRepository(TaskApiService()),
         ),
         ChangeNotifierProvider<TasksViewModel>(
-          create: (context) => TasksViewModel(
-            context.read<TaskRepository>(),
-          )..loadTasks(),
+          create: (context) =>
+              TasksViewModel(context.read<TaskRepository>())..loadTasks(),
         ),
       ],
       child: MaterialApp.router(

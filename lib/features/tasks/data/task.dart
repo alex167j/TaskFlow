@@ -25,10 +25,34 @@ class Task {
   final int userId;
 
   String get priorityName => switch (priority) {
-        TaskPriority.high => 'Alta',
-        TaskPriority.medium => 'Media',
-        TaskPriority.low => 'Baja',
-      };
+    TaskPriority.high => 'Alta',
+    TaskPriority.medium => 'Media',
+    TaskPriority.low => 'Baja',
+  };
 
   bool get isCompleted => status == TaskStatus.completed;
+
+  /// Convierte un mapa JSON de la API en un objeto Task tipado.
+  /// Tolera el formato completo de la especificación y el de la API
+  /// de práctica (JSONPlaceholder: userId, id, title, completed).
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      title: json['title'] as String? ?? 'Sin título',
+      description: json['description'] as String? ?? 'Sin descripción',
+      priority: switch (json['priority']) {
+        'high' => TaskPriority.high,
+        'low' => TaskPriority.low,
+        'medium' => TaskPriority.medium,
+        _ => TaskPriority.medium,
+      },
+      status: switch (json['status']) {
+        'completed' => TaskStatus.completed,
+        'pending' => TaskStatus.pending,
+        _ =>
+          json['completed'] == true ? TaskStatus.completed : TaskStatus.pending,
+      },
+      userId: (json['userId'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
