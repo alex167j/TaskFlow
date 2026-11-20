@@ -190,17 +190,23 @@ encontrado, `500` error del servidor y errores de red/timeout.
 
 ### API de práctica (Semana 4)
 
-Mientras no exista una API propia, TaskFlow consume **JSONPlaceholder**:
+Mientras no exista una API propia, TaskFlow consume un **JSON versionado en
+este mismo repositorio**, con las tareas en español y en el formato completo de
+la especificación (servicio de solo lectura):
 
-- URL base: `https://jsonplaceholder.typicode.com`
-- Consulta: `GET /todos?userId=1` (tareas del usuario de prueba)
-- Conversión en `Task.fromJson()`: `completed` → `status` (`pending` /
-  `completed`), `title` → `title`; `priority` y `description` usan valores por
-  defecto porque esa API no los envía. También acepta el formato completo de la
-  especificación (con `priority`, `status` y `description`).
+- URL base: `https://raw.githubusercontent.com/alex167j/TaskFlow/main`
+- Consulta: `GET /mock/tasks.json`
+- Archivo: [`mock/tasks.json`](mock/tasks.json) con seis tareas de ejemplo.
+- Conversión: `Task.fromJson()` lee directamente `priority` y `status`; además
+  acepta `completed` como respaldo de otras APIs de práctica.
+- Detalle técnico: GitHub entrega el archivo como `text/plain`, así que
+  `TaskApiService` lo decodifica con `jsonDecode` en lugar de esperar el
+  parseo automático de `dio`.
 - Comprobación de la sesión 7: la app muestra temporalmente
-  **«Respuesta HTTP: 200»** bajo el saludo, evidencia de que la consulta se
-  realizó correctamente.
+  **«Respuesta HTTP: 200»** bajo el saludo.
+- Limitación conocida: al ser de solo lectura, las operaciones de escritura del
+  CRUD (semana 5) necesitarán un servicio con `POST`/`PATCH`/`DELETE` o una
+  simulación equivalente en el repositorio; se resolverá en la sesión 9–10.
 
 ## 8. Arquitectura prevista
 

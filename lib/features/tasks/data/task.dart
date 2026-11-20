@@ -33,8 +33,9 @@ class Task {
   bool get isCompleted => status == TaskStatus.completed;
 
   /// Convierte un mapa JSON de la API en un objeto Task tipado.
-  /// Tolera el formato completo de la especificación y el de la API
-  /// de práctica (JSONPlaceholder: userId, id, title, completed).
+  /// Tolera el formato completo del mock versionado (con descripción,
+  /// prioridad y estado) y respuestas reducidas tipo JSONPlaceholder
+  /// (userId, id, title, completed).
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: (json['id'] as num?)?.toInt() ?? 0,
