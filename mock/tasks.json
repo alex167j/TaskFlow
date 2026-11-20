@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Entregar informe del taller",
+    "description": "Redactar el informe del taller de Flutter con los avances de la Semana 1 y entregarlo en el aula virtual.",
+    "priority": "high",
+    "status": "pending",
+    "userId": 1
+  },
+  {
+    "id": 2,
+    "title": "Repasar layouts de Flutter",
+    "description": "Estudiar Row, Column, Expanded y ListView antes de la sesión práctica con el docente.",
+    "priority": "medium",
+    "status": "pending",
+    "userId": 1
+  },
+  {
+    "id": 3,
+    "title": "Resolver tabla CRUD",
+    "description": "Investigar cómo quedaría el ciclo crear, editar y eliminar de una API de tareas de práctica.",
+    "priority": "high",
+    "status": "pending",
+    "userId": 1
+  },
+  {
+    "id": 4,
+    "title": "Practicar tarjetas de inglés",
+    "description": "Repasar el vocabulario del nivel intermedio con 10 palabras nuevas por día.",
+    "priority": "low",
+    "status": "completed",
+    "userId": 1
+  },
+  {
+    "id": 5,
+    "title": "Preparar quiz de inglés",
+    "description": "Completar los ejercicios del módulo 3 y enviar el audio de pronunciación antes del viernes.",
+    "priority": "medium",
+    "status": "completed",
+    "userId": 1
+  },
+  {
+    "id": 6,
+    "title": "Organizar el backlog del proyecto",
+    "description": "Priorizar las pantallas y funcionalidades pendientes de TaskFlow para las próximas semanas.",
+    "priority": "medium",
+    "status": "pending",
+    "userId": 1
+  }
+]
