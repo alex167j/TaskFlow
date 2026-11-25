@@ -17,7 +17,17 @@ class TasksScreen extends StatelessWidget {
     final viewModel = context.watch<TasksViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('TaskFlow'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('TaskFlow'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Actualizar tareas',
+            onPressed: viewModel.isLoading ? null : viewModel.loadTasks,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,23 +42,9 @@ class TasksScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tienes ${viewModel.pendingCount} tareas pendientes.',
+                  _resumen(viewModel),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                // Evidencia temporal de la sesión 7: código HTTP recibido.
-                if (viewModel.lastStatusCode != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Icons.cloud_done, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Respuesta HTTP: ${viewModel.lastStatusCode}',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                    ],
-                  ),
-                ],
               ],
             ),
           ),
@@ -57,9 +53,21 @@ class TasksScreen extends StatelessWidget {
       ),
     );
   }
+
+  /// Resume el estado actual sin repetir la lógica de la lista.
+  String _resumen(TasksViewModel viewModel) => switch (viewModel.status) {
+    TaskListStatus.initial ||
+    TaskListStatus.loading => 'Consultando tus tareas…',
+    TaskListStatus.error => 'No pudimos actualizar el listado.',
+    TaskListStatus.empty => 'Tienes 0 tareas pendientes.',
+    TaskListStatus.success =>
+      'Tienes ${viewModel.pendingCount} tareas pendientes.',
+  };
 }
 
-/// Presenta carga, error o la lista según el estado del ViewModel.
+/// Presenta un widget distinto para cada estado del ViewModel.
+/// La vista no hace HTTP: solo invoca `loadTasks` cuando el usuario
+/// reintenta o actualiza.
 class TaskListView extends StatelessWidget {
   const TaskListView({required this.viewModel, super.key});
 
@@ -67,44 +75,143 @@ class TaskListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (viewModel.errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(viewModel.errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: viewModel.loadTasks,
-                child: const Text('Reintentar'),
-              ),
-            ],
-          ),
+    return switch (viewModel.status) {
+      TaskListStatus.initial || TaskListStatus.loading => const _LoadingState(),
+      TaskListStatus.error => _ErrorState(
+        message:
+            viewModel.errorMessage ??
+            'No se pudieron cargar las tareas. Intenta de nuevo.',
+        onRetry: viewModel.loadTasks,
+      ),
+      TaskListStatus.empty => _EmptyState(onRefresh: viewModel.loadTasks),
+      TaskListStatus.success => RefreshIndicator(
+        onRefresh: viewModel.loadTasks,
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          itemCount: viewModel.tasks.length,
+          itemBuilder: (context, index) {
+            final task = viewModel.tasks[index];
+            return TaskCard(
+              task: task,
+              // Solo comunica la intención: abrir tarea <id>.
+              onTap: () => context.push('/task/${task.id}'),
+            );
+          },
         ),
-      );
-    }
+      ),
+    };
+  }
+}
 
-    if (viewModel.tasks.isEmpty) {
-      return const Center(child: Text('Aún no tienes tareas registradas.'));
-    }
+/// Estado de carga: la consulta está en curso.
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      itemCount: viewModel.tasks.length,
-      itemBuilder: (context, index) {
-        final task = viewModel.tasks[index];
-        return TaskCard(
-          task: task,
-          // Solo comunica la intención: abrir tarea <id>.
-          onTap: () => context.push('/task/${task.id}'),
-        );
-      },
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(
+            'Cargando tareas…',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Estado de error: explica el problema y ofrece una acción recuperable.
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off, size: 48, color: colorScheme.error),
+            const SizedBox(height: 16),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Estado vacío: la consulta funcionó, pero no hay tareas. Se puede
+/// actualizar deslizando hacia abajo o con el botón.
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.onRefresh});
+
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Aún no tienes tareas registradas.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Cuando agregues una tarea aparecerá en este listado.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: onRefresh,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Actualizar'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

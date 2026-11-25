@@ -4,10 +4,6 @@ import 'package:dio/dio.dart';
 
 import 'task.dart';
 
-/// Resultado crudo de una consulta de tareas: los modelos ya convertidos
-/// y el código HTTP recibido (evidencia temporal de la sesión 7).
-typedef FetchTasksResponse = ({List<Task> tasks, int statusCode});
-
 /// Aísla los detalles técnicos de la red: URL base, método HTTP,
 /// timeouts y conversión de la respuesta a modelos [Task].
 ///
@@ -32,7 +28,10 @@ class TaskApiService {
   /// GET /mock/tasks.json y convierte la lista JSON en objetos Task.
   /// GitHub sirve el archivo como texto plano, por eso se decodifica
   /// con [jsonDecode] en lugar de esperar el parseo automático de dio.
-  Future<FetchTasksResponse> fetchTasks() async {
+  ///
+  /// Solo devuelve modelos: los estados de la interfaz (carga, vacío,
+  /// error) son responsabilidad del ViewModel.
+  Future<List<Task>> fetchTasks() async {
     final response = await _dio.get<String>(
       '/mock/tasks.json',
       options: Options(responseType: ResponseType.plain),
@@ -45,6 +44,6 @@ class TaskApiService {
         .map(Task.fromJson)
         .toList();
 
-    return (tasks: tasks, statusCode: response.statusCode ?? 0);
+    return tasks;
   }
 }

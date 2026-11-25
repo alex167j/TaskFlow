@@ -84,7 +84,7 @@ un servicio REST.
 ## 5. Modelo principal: `Task`
 
 Representa una tarea del dominio (no un elemento de interfaz). Implementado en
-`lib/models/task.dart`.
+`lib/features/tasks/data/task.dart`.
 
 | Campo | Tipo Dart | Tipo JSON | Descripción |
 |---|---|---|---|
@@ -202,8 +202,10 @@ la especificación (servicio de solo lectura):
 - Detalle técnico: GitHub entrega el archivo como `text/plain`, así que
   `TaskApiService` lo decodifica con `jsonDecode` en lugar de esperar el
   parseo automático de `dio`.
-- Comprobación de la sesión 7: la app muestra temporalmente
-  **«Respuesta HTTP: 200»** bajo el saludo.
+- Comprobación de la sesión 8: el listado ya no muestra el código HTTP; ahora
+  publica **carga**, **éxito**, **vacío** y **error** con acción
+  **Reintentar**, además de actualización manual (botón de la barra superior y
+  gesto de deslizar hacia abajo).
 - Limitación conocida: al ser de solo lectura, las operaciones de escritura del
   CRUD (semana 5) necesitarán un servicio con `POST`/`PATCH`/`DELETE` o una
   simulación equivalente en el repositorio; se resolverá en la sesión 9–10.
@@ -221,11 +223,26 @@ API Service (HTTP, JSON, encabezados)
 ```
 
 - **View**: no hace peticiones HTTP; solo muestra datos y captura acciones.
-- **ViewModel**: expone `isLoading`, `tasks` y `errorMessage`; se escucha con
+- **ViewModel**: expone un único `TaskListStatus` (`initial`, `loading`,
+  `success`, `empty`, `error`), la lista y el mensaje de error; se escucha con
   `provider` + `ChangeNotifier` (Semana 3, sesión 6).
-- **Repository**: decide cómo obtener y transformar los datos.
+- **Repository**: decide cómo obtener y transformar los datos y entrega
+  `List<Task>` o lanza una excepción; no conoce estados de interfaz.
 - **API Service**: concentra URL base, métodos, encabezados y conversión de
   respuestas (Semana 4).
+
+### 8.1 Estados del listado (sesión 8)
+
+| Estado | Cuándo ocurre | Qué ve la persona | Acción disponible |
+|---|---|---|---|
+| Carga | La consulta está en curso | Indicador circular y «Cargando tareas…» | — |
+| Éxito | Llegaron una o más tareas | Saludo, contador y tarjetas | Tocar tarjeta; actualizar |
+| Vacío | La consulta funcionó sin datos | Icono, mensaje y «Actualizar» | Botón o deslizar |
+| Error | La consulta falló | Mensaje comprensible y «Reintentar» | Reintentar |
+
+El ViewModel evita solicitudes duplicadas mientras hay una carga en curso y
+limpia el error anterior al reintentar. Los mensajes no exponen URL, códigos
+HTTP ni trazas: solo explican el problema y la acción posible.
 
 ## 9. Estructura actual del proyecto
 
@@ -250,7 +267,9 @@ lib/
                 └── task_card.dart     # Tarjeta reutilizable
 
 test/
-└── widget_test.dart                   # Pruebas de listado, detalle y regreso
+├── widget_test.dart                   # Listado, detalle, error/reintento y vacío
+├── tasks_view_model_test.dart         # Estados y reintento del ViewModel
+└── task_model_test.dart               # Lectura tolerante de JSON
 ```
 
 ## 10. Avance por sesiones
@@ -262,7 +281,8 @@ test/
 | 3 | 5 | ✅ Especificación, modelo con usuario y README |
 | 3 | 6 | ✅ MVVM con `provider`: ViewModel, Repository y estructura por funcionalidades |
 | 4 | 7 | ✅ `TaskApiService` con `dio`, `fromJson()` y tareas remotas |
-| 4–7 | 8–14 | ⏳ Estados asíncronos, CRUD, pruebas, persistencia y entrega |
+| 4 | 8 | ✅ Estados de carga, éxito, vacío y error + `Reintentar` y actualización manual |
+| 5–7 | 9–14 | ⏳ CRUD, pruebas, persistencia y entrega |
 
 ## 11. Cómo ejecutar
 
