@@ -62,10 +62,9 @@ un servicio REST.
 3. **Crear una tarea**
    Como estudiante quiero registrar una tarea con título, descripción y
    prioridad para no olvidarla.
-   - Criterios de aceptación: el título es obligatorio y se valida antes de
-     enviar; el botón **Guardar** se deshabilita mientras la solicitud está en
-     curso; al guardar se muestra una confirmación y la tarea aparece en el
-     listado.
+   - Criterios de aceptación: el título y la prioridad son obligatorios y se
+     validan antes de enviar; la descripción y la fecha límite son opcionales;
+     al guardar se muestra una confirmación y la tarea aparece en el listado.
 
 4. **Editar una tarea**
    Como estudiante quiero modificar una tarea existente para corregir datos o
@@ -94,6 +93,7 @@ Representa una tarea del dominio (no un elemento de interfaz). Implementado en
 | `priority` | `TaskPriority` | texto | `high`, `medium` o `low` |
 | `status` | `TaskStatus` | texto | `pending` o `completed` |
 | `userId` | `int` | número | Usuario propietario de la tarea |
+| `dueDate` | `DateTime?` | texto ISO 8601 o ausente | Fecha límite opcional (sesión 9) |
 
 Ejemplo de respuesta JSON:
 
@@ -104,7 +104,8 @@ Ejemplo de respuesta JSON:
   "description": "Redactar el informe con los avances de la semana",
   "priority": "high",
   "status": "pending",
-  "userId": 1
+  "userId": 1,
+  "dueDate": "2026-12-05"
 }
 ```
 
@@ -133,8 +134,9 @@ Ejemplo de respuesta JSON:
 └─────────────────────────────┘
 ```
 
-Estados previstos: **carga** (indicador centrado), **vacío** (mensaje y botón
-para crear) y **error** (mensaje y botón **Reintentar**).
+Estados previstos: **carga** (indicador centrado), **vacío** (mensaje, acción
+para actualizar y botón flotante para crear) y **error** (mensaje y botón
+**Reintentar**).
 
 ### 6.2 Detalle (`/task/:id`)
 
@@ -161,16 +163,19 @@ para crear) y **error** (mensaje y botón **Reintentar**).
 ├─────────────────────────────┤
 │  Título *                   │
 │  [________________________] │
-│  Descripción                │
+│  Descripción (opcional)     │
 │  [________________________] │
-│  Prioridad                  │
+│  Prioridad *                │
 │  (Alta) (Media) (Baja)      │
-│  Estado                     │
-│  (Pendiente) (Completada)   │
+│  Fecha límite (opcional)    │
+│  [ 📅 Sin fecha ]           │
 │                             │
-│          [ Guardar ]        │
+│      [ Guardar tarea ]      │
 └─────────────────────────────┘
 ```
+
+La tarea nueva se registra como **pendiente**. El selector de estado se
+incorporará con el formulario de edición.
 
 ## 7. Endpoints requeridos por el CRUD
 
@@ -206,9 +211,13 @@ la especificación (servicio de solo lectura):
   publica **carga**, **éxito**, **vacío** y **error** con acción
   **Reintentar**, además de actualización manual (botón de la barra superior y
   gesto de deslizar hacia abajo).
+- Alta local de la sesión 9: el formulario valida los datos y agrega la tarea
+  al listado **en memoria**; todavía no hace `POST`. Si se actualiza el
+  listado desde la API, esa tarea local desaparece hasta que la sesión 10
+  implemente la escritura remota.
 - Limitación conocida: al ser de solo lectura, las operaciones de escritura del
   CRUD (semana 5) necesitarán un servicio con `POST`/`PATCH`/`DELETE` o una
-  simulación equivalente en el repositorio; se resolverá en la sesión 9–10.
+  simulación equivalente en el repositorio; se resolverá en la sesión 10.
 
 ## 8. Arquitectura prevista
 
@@ -224,7 +233,8 @@ API Service (HTTP, JSON, encabezados)
 
 - **View**: no hace peticiones HTTP; solo muestra datos y captura acciones.
 - **ViewModel**: expone un único `TaskListStatus` (`initial`, `loading`,
-  `success`, `empty`, `error`), la lista y el mensaje de error; se escucha con
+  `success`, `empty`, `error`), la lista y el mensaje de error; también recibe
+  el alta local del formulario (temporal hasta la sesión 10) y se escucha con
   `provider` + `ChangeNotifier` (Semana 3, sesión 6).
 - **Repository**: decide cómo obtener y transformar los datos y entrega
   `List<Task>` o lanza una excepción; no conoce estados de interfaz.
@@ -244,6 +254,23 @@ El ViewModel evita solicitudes duplicadas mientras hay una carga en curso y
 limpia el error anterior al reintentar. Los mensajes no exponen URL, códigos
 HTTP ni trazas: solo explican el problema y la acción posible.
 
+### 8.2 Formulario de nueva tarea (sesión 9)
+
+El botón flotante del listado abre `/new`. La pantalla usa `Form`,
+`TextFormField` y un `FormField<TaskPriority>` para validar sin hacer HTTP:
+
+| Campo | Obligatorio | Validación |
+|---|---|---|
+| Título | Sí | No vacío; se recorta el texto |
+| Descripción | No | Se guarda «Sin descripción» si está vacía |
+| Prioridad | Sí | Debe elegirse Alta, Media o Baja |
+| Fecha límite | No | Selector de fecha en español; se puede quitar |
+
+Al confirmar, el ViewModel recibe la tarea con estado **pendiente** y un id
+temporal, muestra una confirmación y vuelve al listado. El envío real con
+`POST`, la respuesta de la API y el bloqueo del botón durante el envío
+corresponden a la sesión 10.
+
 ## 9. Estructura actual del proyecto
 
 ```text
@@ -261,15 +288,16 @@ lib/
         │   └── task_repository.dart   # Contrato + repositorios API/local
         └── presentation/
             ├── tasks_screen.dart      # Listado
+            ├── new_task_screen.dart   # Formulario de nueva tarea
             ├── task_detail_screen.dart# Detalle por id
             ├── tasks_view_model.dart  # Estado de la funcionalidad
             └── widgets/
                 └── task_card.dart     # Tarjeta reutilizable
 
 test/
-├── widget_test.dart                   # Listado, detalle, error/reintento y vacío
-├── tasks_view_model_test.dart         # Estados y reintento del ViewModel
-└── task_model_test.dart               # Lectura tolerante de JSON
+├── widget_test.dart                   # Listado, detalle, estados y formulario
+├── tasks_view_model_test.dart         # Estados, reintento y alta local
+└── task_model_test.dart               # Lectura tolerante de JSON y fecha
 ```
 
 ## 10. Avance por sesiones
@@ -282,7 +310,8 @@ test/
 | 3 | 6 | ✅ MVVM con `provider`: ViewModel, Repository y estructura por funcionalidades |
 | 4 | 7 | ✅ `TaskApiService` con `dio`, `fromJson()` y tareas remotas |
 | 4 | 8 | ✅ Estados de carga, éxito, vacío y error + `Reintentar` y actualización manual |
-| 5–7 | 9–14 | ⏳ CRUD, pruebas, persistencia y entrega |
+| 5 | 9 | ✅ Formulario «Nueva tarea» con validaciones, prioridad y fecha opcional |
+| 5–7 | 10–14 | ⏳ CRUD remoto, pruebas, persistencia y entrega |
 
 ## 11. Cómo ejecutar
 

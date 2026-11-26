@@ -51,6 +51,11 @@ class TasksScreen extends StatelessWidget {
           Expanded(child: TaskListView(viewModel: viewModel)),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Nueva tarea',
+        onPressed: () => context.push('/new'),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 

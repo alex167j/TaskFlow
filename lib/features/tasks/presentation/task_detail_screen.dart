@@ -58,6 +58,18 @@ class TaskDetailScreen extends StatelessWidget {
               Text('Prioridad: ${task.priorityName}'),
             ],
           ),
+          if (task.dueDate != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.event, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Fecha límite: ${MaterialLocalizations.of(context).formatMediumDate(task.dueDate!)}',
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 24),
           Text('Descripción', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),

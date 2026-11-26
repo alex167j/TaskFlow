@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/main.dart';
 import 'package:taskflow/features/tasks/data/task.dart';
@@ -70,7 +71,7 @@ void main() {
 
     await tester.tap(find.text('Repasar layouts de Flutter'));
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
     expect(find.text('TaskFlow'), findsOneWidget);
@@ -128,6 +129,85 @@ void main() {
 
     expect(find.byTooltip('Actualizar tareas'), findsOneWidget);
   });
+
+  testWidgets('El botón flotante abre el formulario de nueva tarea', (
+    WidgetTester tester,
+  ) async {
+    await _abrirFormulario(tester);
+
+    expect(find.text('Nueva tarea'), findsOneWidget);
+    expect(find.text('Título *'), findsOneWidget);
+    expect(find.text('Prioridad *'), findsOneWidget);
+    expect(find.text('Guardar tarea'), findsOneWidget);
+  });
+
+  testWidgets('El formulario valida y agrega la tarea al listado', (
+    WidgetTester tester,
+  ) async {
+    await _abrirFormulario(tester);
+
+    await tester.ensureVisible(find.text('Guardar tarea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Guardar tarea'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Escribe un título para la tarea.'), findsOneWidget);
+    expect(find.text('Selecciona una prioridad.'), findsOneWidget);
+    expect(find.text('Nueva tarea'), findsOneWidget); // sigue en el formulario
+
+    await tester.enterText(
+      find.byKey(const Key('task-title-field')),
+      'Preparar la exposición',
+    );
+    await tester.tap(find.byKey(const Key('priority-high')));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Guardar tarea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Guardar tarea'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nueva tarea'), findsNothing);
+    expect(find.text('Tienes 4 tareas pendientes.'), findsOneWidget);
+    expect(find.text('Tarea agregada al listado.'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Preparar la exposición'), 200);
+    expect(find.text('Preparar la exposición'), findsOneWidget);
+  });
+
+  testWidgets('La fecha límite es opcional y se puede quitar', (
+    WidgetTester tester,
+  ) async {
+    await _abrirFormulario(tester);
+
+    expect(find.text('Sin fecha'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Sin fecha'));
+    await tester.tap(find.text('Sin fecha'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Selecciona la fecha límite'), findsOneWidget);
+    await tester.tap(find.text('Aceptar'));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Quitar fecha'), findsOneWidget);
+    expect(find.text('Sin fecha'), findsNothing);
+
+    await tester.tap(find.byTooltip('Quitar fecha'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sin fecha'), findsOneWidget);
+    expect(find.byTooltip('Quitar fecha'), findsNothing);
+  });
+}
+
+/// Abre el formulario desde el listado con datos locales.
+Future<void> _abrirFormulario(WidgetTester tester) async {
+  await tester.pumpWidget(const TaskFlowApp(repository: LocalTaskRepository()));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byTooltip('Nueva tarea'));
+  await tester.pumpAndSettle();
 }
 
 /// Falla la primera consulta y responde bien en el reintento.

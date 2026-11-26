@@ -46,5 +46,29 @@ void main() {
     expect(task.title, 'Sin título');
     expect(task.status, TaskStatus.pending);
     expect(task.priority, TaskPriority.medium);
+    expect(task.dueDate, isNull);
+  });
+
+  test('fromJson lee la fecha límite opcional', () {
+    final task = Task.fromJson({
+      'id': 20,
+      'title': 'Preparar exposición',
+      'description': 'Armar las diapositivas',
+      'priority': 'high',
+      'status': 'pending',
+      'userId': 1,
+      'dueDate': '2026-12-05',
+    });
+
+    expect(task.dueDate, DateTime(2026, 12, 5));
+  });
+
+  test('fromJson ignora una fecha inválida', () {
+    final task = Task.fromJson({
+      'title': 'Sin fecha válida',
+      'dueDate': 'pronto',
+    });
+
+    expect(task.dueDate, isNull);
   });
 }

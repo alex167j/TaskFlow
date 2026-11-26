@@ -102,4 +102,22 @@ void main() {
     expect(viewModel.status, TaskListStatus.success);
     expect(repository.calls, 1);
   });
+
+  test('agrega una tarea local y calcula el siguiente id', () async {
+    final viewModel = TasksViewModel(
+      _FakeTaskRepository([() async => const []]),
+    );
+    await viewModel.loadTasks();
+
+    expect(viewModel.status, TaskListStatus.empty);
+    expect(viewModel.nextTaskId, 1);
+
+    viewModel.addTask(_task);
+
+    expect(viewModel.status, TaskListStatus.success);
+    expect(viewModel.tasks, hasLength(1));
+    expect(viewModel.tasks.first.title, 'Preparar la exposición');
+    expect(viewModel.nextTaskId, 2);
+    expect(viewModel.errorMessage, isNull);
+  });
 }

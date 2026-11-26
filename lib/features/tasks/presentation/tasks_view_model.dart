@@ -47,6 +47,21 @@ class TasksViewModel extends ChangeNotifier {
 
   int get pendingCount => _tasks.where((task) => !task.isCompleted).length;
 
+  /// Siguiente id disponible para una tarea creada localmente. La API
+  /// asignará el definitivo cuando exista la operación POST (sesión 10).
+  int get nextTaskId =>
+      _tasks.fold<int>(0, (maxId, task) => task.id > maxId ? task.id : maxId) +
+      1;
+
+  /// Agrega una tarea creada desde el formulario. Por ahora vive solo en
+  /// memoria: la sesión 10 la enviará a la API con POST.
+  void addTask(Task task) {
+    _tasks = [..._tasks, task];
+    _status = TaskListStatus.success;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Task? taskById(int id) {
     final matches = _tasks.where((task) => task.id == id);
     return matches.isEmpty ? null : matches.first;

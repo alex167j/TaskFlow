@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme/app_theme.dart';
 import '../features/tasks/data/task_api_service.dart';
 import '../features/tasks/data/task_repository.dart';
+import '../features/tasks/presentation/new_task_screen.dart';
 import '../features/tasks/presentation/task_detail_screen.dart';
 import '../features/tasks/presentation/tasks_screen.dart';
 import '../features/tasks/presentation/tasks_view_model.dart';
 
 /// Navegación declarativa de TaskFlow:
 ///   /          → listado de tareas
+///   /new       → formulario para registrar una tarea
 ///   /task/:id  → detalle de una tarea, identificada por id
 /// Cada instancia de la app crea su propio router para no compartir
 /// estado de navegación entre ejecuciones (importante en pruebas).
@@ -18,6 +21,7 @@ GoRouter crearRouterDeApp() {
   return GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const TasksScreen()),
+      GoRoute(path: '/new', builder: (context, state) => const NewTaskScreen()),
       GoRoute(
         path: '/task/:id',
         builder: (context, state) {
@@ -54,6 +58,10 @@ class TaskFlowApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'TaskFlow',
         theme: AppTheme.light,
+        // Toda la interfaz y los selectores de fecha en español.
+        locale: const Locale('es'),
+        supportedLocales: const [Locale('es')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         routerConfig: crearRouterDeApp(),
       ),
     );
